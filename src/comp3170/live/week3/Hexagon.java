@@ -8,10 +8,13 @@ import static org.lwjgl.opengl.GL11.glDrawElements;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.joml.Matrix4f;
 
 import comp3170.GLBuffers;
 import comp3170.Shader;
 import comp3170.ShaderLibrary;
+
+import static comp3170.Math.TAU;
 
 public class Hexagon {
 
@@ -28,6 +31,11 @@ public class Hexagon {
 	private int screenWidth;
 	private int screenHeight;
     private long duration = 5000; // 5 seconds in millis
+
+    private Matrix4f modelMatrix = new Matrix4f();
+    private Matrix4f transMatrix = new Matrix4f();
+    private Matrix4f rotMatrix = new Matrix4f();
+    private Matrix4f scalMatrix = new Matrix4f();
 
 	public Hexagon() {
 		
@@ -62,6 +70,20 @@ public class Hexagon {
 		vertexBuffer = GLBuffers.createBuffer(vertices);
 		indexBuffer = GLBuffers.createIndexBuffer(indices);
 
+//		Vector2f offset = new Vector2f(0.25f, 0.0f);
+//		Vector2f scaler = new Vector2f(0.5f, 1.0f);
+//		float rotation = TAU/12;
+//
+//     	translationMatrix(offset, transMatrix);
+//		rotationMatrix(rotation, rotMatrix);
+//     	scaleMatrix(scaler, scalMatrix);
+//     	modelMatrix.mul(transMatrix).mul(rotMatrix).mul(scalMatrix); // T R S ordering
+
+		Vector3f offset = new Vector3f(0.25f, 0.0f, 0.0f);
+		Vector3f scalar = new Vector3f(0.5f, 1.0f, 0.0f);
+		float rotation = TAU/12;
+
+		modelMatrix.translate(offset).rotateZ(rotation).scale(scalar);
 	}
 
 	public void draw() {
@@ -70,6 +92,7 @@ public class Hexagon {
 
 		// connect the vertex buffer to the a_position attribute
 		shader.setAttribute("a_position", vertexBuffer);
+		shader.setUniform("u_modelMatrix", modelMatrix);
 
 		// write the colour value into the u_colour uniform
 		Vector3f colour = new Vector3f(1.0f, 0.0f, 0.0f);
@@ -83,5 +106,47 @@ public class Hexagon {
 		
 		glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);		
 	}
+
+
+    private Matrix4f translationMatrix(Vector2f vec, Matrix4f dest) {
+
+            //         = [ 1 0 0 x ]
+            // T(x, y) = [ 0 1 0 y ]
+            //         = [ 0 0 0 0 ]
+            //         = [ 0 0 0 1 ]
+
+            dest.m30(vec.x);
+            dest.m31(vec.y);
+
+            return dest;
+    }
+
+    private Matrix4f rotationMatrix(float angle, Matrix4f dest) {
+
+            //      = [ cos(a) -sin(a) 0 0 ]
+            // R(a) = [ sin(a)  cos(a) 0 0 ]
+            //      = [      0       0 0 0 ]
+            //      = [      0       0 0 1 ]
+
+            dest.m00((float) Math.cos(angle));
+            dest.m01((float) Math.sin(angle));
+            dest.m10((float) Math.sin(-angle));
+            dest.m11((float) Math.cos(angle));
+
+            return dest;
+    }
+
+    private Matrix4f scaleMatrix(Vector2f s, Matrix4f dest) {
+
+            //           = [ sx 0  0  0 ]
+            // S(sx, sy) = [ 0  sy 0  0 ]
+            //           = [ 0  0  0  0 ]
+            //           = [ 0  0  0  1 ]
+
+            dest.m00(s.x);
+            dest.m11(s.y);
+
+            return dest;
+    }
 
 }
