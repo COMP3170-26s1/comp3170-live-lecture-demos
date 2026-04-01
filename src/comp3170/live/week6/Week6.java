@@ -19,7 +19,7 @@ public class Week6 implements IWindowListener{
 	
 	private int screenWidth = 1000;
 	private int screenHeight = 1000;
-	private Vector4f clearColour = new Vector4f(0.2f, 0.25f, 0.5f, 1.0f); // OCEAN BLUE
+	private Vector4f clearColour = new Vector4f(0.1f, 0.1f, 0.1f, 1.0f); // DARK GRIM
 	
 	final private File DIRECTORY = new File("src/comp3170/live/week6/shaders");
 	
@@ -37,7 +37,7 @@ public class Week6 implements IWindowListener{
 	private Scene scene;
 
 	public Week6() throws OpenGLException {
-		window = new Window("Week 5", screenWidth, screenHeight, this);
+		window = new Window("Week 6", screenWidth, screenHeight, this);
 
 		window.setResizable(true);
 		window.run();

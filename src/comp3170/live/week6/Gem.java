@@ -95,22 +95,6 @@ public class Gem extends SceneObject {
 	private float yAngle = 0f;
 	private float xAngle = 0f;
 	
-	public void update(InputManager input, float deltaTime) {
-		if (input.isKeyDown(GLFW_KEY_W)) {
-			xAngle += ROTATE_RATE * deltaTime;
-		}
-		if (input.isKeyDown(GLFW_KEY_S)) {
-			xAngle -= ROTATE_RATE * deltaTime;
-		}
-		if (input.isKeyDown(GLFW_KEY_A)) {
-			yAngle -= ROTATE_RATE * deltaTime;
-		}
-		if (input.isKeyDown(GLFW_KEY_D)) {
-			yAngle += ROTATE_RATE * deltaTime;
-		}
-		getMatrix().identity().rotateY(yAngle).rotateX(xAngle);
-	}
-	
 	public void drawSelf(Matrix4f mvpMatrix) {
 		shader.enable();
 		shader.setAttribute("a_position", vertexBuffer);
