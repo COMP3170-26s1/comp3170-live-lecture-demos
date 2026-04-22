@@ -28,7 +28,7 @@ public class Week6 implements IWindowListener{
 	private InputManager input;
 	private Window window;
 	
-	// Matricies
+	// Matrices
 	private Matrix4f viewMatrix = new Matrix4f();
 	private Matrix4f projectionMatrix = new Matrix4f();
 	private Matrix4f mvpMatrix = new Matrix4f();
