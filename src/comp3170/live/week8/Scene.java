@@ -24,8 +24,18 @@ public class Scene extends SceneObject {
 		Axes3D axes = new Axes3D();
 		axes.setParent(this);
 
-		Gem gem = new Gem();
-		gem.setParent(this);
+		Quad window = new Quad();
+		window.setParent(this);
+		window.getMatrix().translate(0,0,2);
+
+		Gem gem1 = new Gem(Color.red);
+		gem1.setParent(this);
+		gem1.getMatrix().translate(-2,0,0);
+
+		Gem gem2 = new Gem(Color.blue);
+		gem2.setParent(this);
+		gem2.getMatrix().translate(2,0,0);
+
 		
 		camera = new Camera();
 	}

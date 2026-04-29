@@ -23,14 +23,17 @@ import comp3170.ShaderLibrary;
 
 public class Gem extends SceneObject {
 	
-	final private String VERTEX_SHADER = "week8Vertex.glsl";
-	final private String FRAGMENT_SHADER = "week8Fragment.glsl";
+//	final private String VERTEX_SHADER = "week8Vertex.glsl";
+//	final private String FRAGMENT_SHADER = "week8Fragment.glsl";
+	final private String VERTEX_SHADER = "simpleVertex.glsl";
+	final private String FRAGMENT_SHADER = "simpleFragment.glsl";
 	final private String WIREFRAME_VERTEX_SHADER = "simpleVertex.glsl";
 	final private String WIREFRAME_FRAGMENT_SHADER = "simpleFragment.glsl";
 	
 	private Vector4f[] vertices; 
 	private int vertexBuffer;
 	
+	private Vector4f colour;
 	private Vector4f[] colours; 
 	private int colourBuffer;
 
@@ -44,12 +47,18 @@ public class Gem extends SceneObject {
 	private Shader shader;
 	private Shader wireframeShader;
 	
-	public Gem() {
+	private final static float ALPHA = 1f;
+	
+	public Gem(Color c) {
 		shader = ShaderLibrary.instance.compileShader(VERTEX_SHADER, FRAGMENT_SHADER);
 		wireframeShader = ShaderLibrary.instance.compileShader(WIREFRAME_VERTEX_SHADER, WIREFRAME_FRAGMENT_SHADER);
 		shader.setStrict(false);
 		wireframeShader.setStrict(false);
 		
+		float[] rgb = new float[3];
+		c.getRGBColorComponents(rgb);
+		colour = new Vector4f(rgb[0],rgb[1],rgb[2],ALPHA);
+
 		createBuffers();
 	}
 
@@ -99,27 +108,36 @@ public class Gem extends SceneObject {
 	}
 	
 	
-	public void drawSelf(Matrix4f mvpMatrix) {
-		shader.enable();
+	public void drawSelf(Matrix4f mvpMatrix, int pass) {
 		
-		shader.setUniform("u_mvpMatrix", mvpMatrix);
-
-		shader.setAttribute("a_position", vertexBuffer);
-		shader.setAttribute("a_colour", colourBuffer);
+		switch (pass) {
 		
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-		glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
-
-		// draw the wireframe
-		
-		wireframeShader.enable();
-		wireframeShader.setUniform("u_mvpMatrix", mvpMatrix);
-		wireframeShader.setAttribute("a_position", vertexBuffer);
-		wireframeShader.setUniform("u_colour", wireColour);
-		
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-		glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+		case Week8.OPAQUE_PASS:
+			// Opaque pass: draw the faces
+	
+			shader.enable();		
+			shader.setUniform("u_mvpMatrix", mvpMatrix);
+			shader.setAttribute("a_position", vertexBuffer);
+			shader.setAttribute("a_colour", colourBuffer);
+			shader.setUniform("u_colour", colour);
+			
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+			glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+			break;
+	
+		case Week8.WIREFRAME_PASS:
+			// draw the wireframe
+			
+			wireframeShader.enable();
+			wireframeShader.setUniform("u_mvpMatrix", mvpMatrix);
+			wireframeShader.setAttribute("a_position", vertexBuffer);
+			wireframeShader.setUniform("u_colour", wireColour);
+			
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+			glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+			break;
+		}
 	}
 }

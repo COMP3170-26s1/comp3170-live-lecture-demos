@@ -1,10 +1,14 @@
 package comp3170.live.week8;
 
+import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_LEQUAL;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glClearDepth;
@@ -20,7 +24,6 @@ import comp3170.IWindowListener;
 import comp3170.InputManager;
 import comp3170.OpenGLException;
 import comp3170.ShaderLibrary;
-import comp3170.TextureLibrary;
 import comp3170.Window;
 import comp3170.live.common.cameras.ICamera;
 
@@ -44,6 +47,12 @@ public class Week8 implements IWindowListener{
 
 	private Scene scene;		// The scene graph
 
+	private boolean drawWireframes = true;
+	
+	public static final int OPAQUE_PASS = 0; 
+	public static final int WIREFRAME_PASS = 1; 
+	public static final int TRANSPARENT_PASS = 2; 
+	
 	/**
 	 * The constructor typically just creates a 
 	 * 
@@ -65,10 +74,13 @@ public class Week8 implements IWindowListener{
 		
 		// Enable required GL features & configure
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);	// enable depth testing
 		glDepthFunc(GL_LEQUAL);	
-		glEnable(GL_CULL_FACE);
-
+		
+		glEnable(GL_CULL_FACE);		// enable backface culling
+		glEnable(GL_BLEND);			// enable transparency
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 		// Create ShaderLibrary and TextureLibrary singletons and 
 		// configure the paths they will use to find files
 		
@@ -129,7 +141,20 @@ public class Week8 implements IWindowListener{
 		camera.getProjectionMatrix(projectionMatrix);
 		mvpMatrix.set(projectionMatrix).mul(viewMatrix);
 
-		scene.draw(mvpMatrix);
+		// Pass 0: Draw opaque objects
+		
+		scene.draw(mvpMatrix, OPAQUE_PASS);
+
+		// Pass 2: Draw wireframes
+		
+		if (drawWireframes) {
+			scene.draw(mvpMatrix, WIREFRAME_PASS);
+		}
+
+		// Pass 1: Draw transparent objects
+		
+		scene.draw(mvpMatrix, TRANSPARENT_PASS);
+
 	}
 
 	/**
