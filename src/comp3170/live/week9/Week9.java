@@ -36,7 +36,7 @@ import comp3170.live.common.cameras.ICamera;
 public class Week9 implements IWindowListener{
 
 	private static final File COMMON_DIR = new File("src/comp3170/live/common/shaders");
-	private static final File SHADER_DIR = new File("src/comp3170/live/week8/shaders");
+	private static final File SHADER_DIR = new File("src/comp3170/live/week9/shaders");
 
 	private Window window;
 	private int screenWidth = 1000;

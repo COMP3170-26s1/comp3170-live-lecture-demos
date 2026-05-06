@@ -1,5 +1,7 @@
 package comp3170.live.week9;
 
+import java.awt.Color;
+
 import comp3170.InputManager;
 import comp3170.SceneObject;
 import comp3170.live.common.cameras.ICamera;
@@ -16,16 +18,21 @@ public class Scene extends SceneObject {
 
 	public static Scene theScene = null;
 	private ICamera camera; // the 'common' package contains code for some standard cameras
+	private Gem2 gem;
 
 	public Scene() {
 		theScene = this;
 
-		Grid grid = new Grid(21);
-		grid.setParent(this);
-		grid.getMatrix().scale(2);
-		
-		Cylinder cylinder = new Cylinder();
-		cylinder.setParent(this);
+//		Grid grid = new Grid(21);
+//		grid.setParent(this);
+//		grid.getMatrix().scale(2);
+
+		gem = new Gem2();
+		gem.setParent(this);
+		gem.getMatrix().scale(1,2,1);
+
+//		Cylinder cylinder = new Cylinder();
+//		cylinder.setParent(this);
 
 		Axes3D axes = new Axes3D();
 		axes.setParent(this);
@@ -36,6 +43,7 @@ public class Scene extends SceneObject {
 
 	public void update(float deltaTime, InputManager input) {
 		camera.update(deltaTime, input);
+		gem.update(deltaTime, input);
 	}
 
 	public ICamera getCamera() {

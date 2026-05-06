@@ -55,6 +55,11 @@ public class Gem extends SceneObject {
 	}
 
 	private void createBuffers() {
+		createAttributeBuffers();				
+		createIndexBuffer();
+	}
+
+	private void createAttributeBuffers() {
 		vertices = new Vector4f[2 + NSIDES];	// top + bottom + sides
 		colours = new Vector4f[2 + NSIDES];
 
@@ -80,11 +85,13 @@ public class Gem extends SceneObject {
 		}
 		
 		vertexBuffer = GLBuffers.createBuffer(vertices);		
-		colourBuffer = GLBuffers.createBuffer(colours);		
-		
+		colourBuffer = GLBuffers.createBuffer(colours);
+	}
+	
+	private void createIndexBuffer() {
 		indices = new int[2 * NSIDES * 3];	// 2 triangles per side, 3 vertices per triangle
 		
-		k = 0;		
+		int k = 0;		
 		for (int i = 0; i < NSIDES; i++) {
 			indices[k++] = 0; 			// TOP
 			indices[k++] = 2 + i;		// SIDE
@@ -97,6 +104,7 @@ public class Gem extends SceneObject {
 		
 		indexBuffer = GLBuffers.createIndexBuffer(indices);
 	}
+
 	
 	
 	public void drawSelf(Matrix4f mvpMatrix, int pass) {
