@@ -29,7 +29,7 @@ public class Scene extends SceneObject {
 
 		gem = new Gem();
 		gem.setParent(this);
-		gem.getMatrix().scale(1,2,1);
+//		gem.getMatrix().scale(1,2,1);
 
 //		Cylinder cylinder = new Cylinder();
 //		cylinder.setParent(this);

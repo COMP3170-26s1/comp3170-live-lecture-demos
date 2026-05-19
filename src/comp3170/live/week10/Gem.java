@@ -25,7 +25,7 @@ public class Gem extends SceneObject {
 //	final private String VERTEX_SHADER = "normalVertex.glsl";
 //	final private String FRAGMENT_SHADER = "normalFragment.glsl";
 	final private String VERTEX_SHADER = "lightVertex.glsl";
-	final private String FRAGMENT_SHADER = "lightFragment.glsl";
+	final private String FRAGMENT_SHADER = "lightFragmentPerspective.glsl";
 	final private String WIREFRAME_VERTEX_SHADER = "simpleVertex.glsl";
 	final private String WIREFRAME_FRAGMENT_SHADER = "simpleFragment.glsl";
 	
@@ -36,7 +36,7 @@ public class Gem extends SceneObject {
 
 	private Vector4f wireColour = new Vector4f(0,0,0,1);
 	
-	private static final int NSIDES = 8;
+	private static final int NSIDES = 10;
 	
 	private Shader shader;
 	private Shader wireframeShader;
@@ -70,40 +70,42 @@ public class Gem extends SceneObject {
 			Vector4f p1 = new Vector4f(1,0,0,1).rotateY(angle0);
 			Vector4f p2 = new Vector4f(1,0,0,1).rotateY(angle1);
 			
-			Vector4f v10 = p1.sub(p0, new Vector4f());
-			Vector4f v20 = p2.sub(p0, new Vector4f());
-			Vector4f n = cross(v10, v20, new Vector4f());
+			Vector4f n = new Vector4f(-1,1,0,0).rotateZ(-TAU/4);
+			Vector4f n0 = new Vector4f(0,0,0,0);
+			Vector4f n1 = n.rotateY(angle0, new Vector4f());
+			Vector4f n2 = n.rotateY(angle1, new Vector4f());
 			
 			vertices[k] = p0;
-			normals[k] = n;
+			normals[k] = n0;
 			k++;
 			
 			vertices[k] = p1;
-			normals[k] = n;
+			normals[k] = n1;
 			k++;
 
 			vertices[k] = p2;
-			normals[k] = n;
+			normals[k] = n2;
 			k++;
 				
 			p0 = new Vector4f(0,-1,0,1); // bottom
 			p1 = new Vector4f(1,0,0,1).rotateY(angle1);
 			p2 = new Vector4f(1,0,0,1).rotateY(angle0);
 			
-			v10 = p1.sub(p0, new Vector4f());
-			v20 = p2.sub(p0, new Vector4f());
-			n = cross(v10, v20, new Vector4f());
+			n = new Vector4f(-1,-1,0,0).rotateZ(TAU/4);
+			n0 = new Vector4f(0,0,0,0);
+			n1 = n.rotateY(angle1, new Vector4f());
+			n2 = n.rotateY(angle0, new Vector4f());
 			
 			vertices[k] = p0;
-			normals[k] = n;
+			normals[k] = n0;
 			k++;
 			
 			vertices[k] = p1;
-			normals[k] = n;
+			normals[k] = n1;
 			k++;
 
 			vertices[k] = p2;
-			normals[k] = n;
+			normals[k] = n2;
 			k++;
 		}
 		
@@ -112,10 +114,15 @@ public class Gem extends SceneObject {
 	}
 	
 	private Vector3f diffuseMaterial = new Vector3f(1,1,0);
-	private Vector3f ambientIntensity = new Vector3f(0.1f,0.1f,0.1f);
+	private Vector3f specularMaterial = new Vector3f(1,1,1);
+	private float shininess = 1000f;
 
+	private Vector3f ambientIntensity = new Vector3f(0.1f,0.1f,0.1f);
 	private Vector3f lightIntensity = new Vector3f(1,1,1);
 	private Vector4f lightDirection = new Vector4f(1,0,0,0); 
+
+	private Matrix4f cameraMatrix = new Matrix4f();
+	private Vector4f camera = new Vector4f(0,0,0,0); 
 
 	private Matrix4f modelMatrix = new Matrix4f();
 	private Matrix4f normalMatrix = new Matrix4f();
@@ -130,18 +137,35 @@ public class Gem extends SceneObject {
 			getModelToWorldMatrix(modelMatrix);
 			modelMatrix.normal(normalMatrix);		// convert model matrix to normal matrix
 			
-			shader.enable();		
+			shader.enable();
+			
+			// coordinate frames
 			shader.setUniform("u_mvpMatrix", mvpMatrix);
 			shader.setUniform("u_modelMatrix", modelMatrix);
 			shader.setUniform("u_normalMatrix", normalMatrix);
 
+			// geometry
 			shader.setAttribute("a_position", vertexBuffer);
 			shader.setAttribute("a_normal", normalBuffer);
+
+			// material
 			shader.setUniform("u_diffuseMaterial", diffuseMaterial);
+			shader.setUniform("u_specularMaterial", specularMaterial);
+			shader.setUniform("u_shininess", shininess);
+
+			// light
 			shader.setUniform("u_ambientIntensity", ambientIntensity);
 			shader.setUniform("u_lightIntensity", lightIntensity);
 			shader.setUniform("u_lightDirection", lightDirection);
 			
+			// camera
+			Scene.theScene.getCamera().getModelMatrix(cameraMatrix);
+//			cameraMatrix.getColumn(2, camera);	// k axis - orthorgaphic
+//			shader.setUniform("u_camera", cameraDirection);			
+			cameraMatrix.getColumn(3, camera);	// origin - perspecitce
+			shader.setUniform("u_cameraPosition", camera);			
+						
+			// draw
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glDrawArrays(GL_TRIANGLES, 0, vertices.length);
 			break;
@@ -155,12 +179,12 @@ public class Gem extends SceneObject {
 			wireframeShader.setUniform("u_colour", wireColour);
 			
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glDrawArrays(GL_TRIANGLES, 0, vertices.length);
+//			glDrawArrays(GL_TRIANGLES, 0, vertices.length);
 			break;
 		}
 	}
 
-	private static final float ROTATION_SPEED = TAU / 10;
+	private static final float ROTATION_SPEED = 0; //TAU / 10;
 	
 	public void update(float deltaTime, InputManager input) {
 		float angle = deltaTime * ROTATION_SPEED;

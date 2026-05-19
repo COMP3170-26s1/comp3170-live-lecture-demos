@@ -1,9 +1,10 @@
 package comp3170.live.week10;
 
-import comp3170.live.common.cameras.OrthographicOrbittingCamera;
 import static comp3170.Math.TAU;
 
-public class Camera extends OrthographicOrbittingCamera {
+import comp3170.live.common.cameras.PerspectiveOrbittingCamera;
+
+public class Camera extends PerspectiveOrbittingCamera {
 
 	private static final float DISTANCE = 5;
 	private static final float WIDTH = 4;
@@ -14,8 +15,8 @@ public class Camera extends OrthographicOrbittingCamera {
 	private static final float ASPECT = 1;
 	
 	public Camera() {
-		super(DISTANCE, WIDTH, HEIGHT, NEAR, FAR);	// orthographic
-//		super(DISTANCE, FOVY, ASPECT, NEAR, FAR);	// perspective
+//		super(DISTANCE, WIDTH, HEIGHT, NEAR, FAR);	// orthographic
+		super(DISTANCE, FOVY, ASPECT, NEAR, FAR);	// perspective
 	}
 
 }
